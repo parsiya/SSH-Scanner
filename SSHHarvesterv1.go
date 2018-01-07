@@ -11,7 +11,7 @@
 // -v, -verbose  string  print extra info
 // See the blog post for discussion and techniques.
 
-package main
+package random
 
 import (
 	"bufio"
