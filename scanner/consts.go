@@ -1,5 +1,9 @@
 // Project constants
-package constants
+package scanner
+
+import (
+	"time"
+)
 
 const (
 	// Flag usage descriptions
@@ -18,4 +22,12 @@ const (
 	  ssh-sccaner -t 127.0.0.1:22,192.168.0.1:1234 -log log1.txt -v
 	 Read targets from input2.txt, store output to report2.txt and log results to log2.txt
 	  ssh-sccaner -in input2.txt -out output2.txt -log log2.txt`
+
+	// Scanning constants
+	// Timeout
+	Timeout = 5 * time.Second
+
+	// Default SSH username and password
+	DefaultUser     = "user"
+	DefaultPassword = "password"
 )

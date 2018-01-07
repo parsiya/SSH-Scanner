@@ -147,43 +147,6 @@ func (str *strList) Set(s string) error {
 	return nil
 }
 
-// -----
-// Struct to hold server data
-type SSHServer struct {
-	Address   string          // host:port
-	Host      string          // IP address
-	Port      int             // port
-	IsSSH     bool            // true if server is running SSH on address:port
-	Banner    string          // banner text, if any
-	Cert      ssh.Certificate // server's certificate
-	Hostname  string          // hostname
-	PublicKey ssh.PublicKey   // server's public key
-}
-
-// NewSSHServer returns a new SSHServer with address, host and port populated.
-// If address cannot be processed, an error will be returned.
-func NewSSHServer(address string) (*SSHServer, error) {
-	// Process address, return error if it's not in the correct format
-	host, port, err := net.SplitHostPort(address)
-	if err != nil {
-		return nil, err
-	}
-
-	var s SSHServer
-
-	s.Address = address
-	s.Host = host
-	s.Port, err = strconv.Atoi(port)
-	if err != nil {
-		return nil, err
-	}
-	// If port is not in (0,65535]
-	if 0 > s.Port || s.Port > 65535 {
-		return nil, errors.New(port + " invalid port")
-	}
-	return &s, nil
-}
-
 // discover connects to ip:port and attempts to make an SSH connection.
 // If successful, some SSH properties will be populated (most importantly isSSH
 // and isAlive).
@@ -221,49 +184,6 @@ func (s *SSHServer) discover() {
 
 	// Close connection if we succeed (almost never happens)
 	sshConn.Close()
-}
-
-type SSHServers []*SSHServer
-
-// String converts []*SSHServer to JSON. If it cannot convert to JSON, it
-// will convert each member to string using fmt.Sprintf("%+v").
-func (servers *SSHServers) String() string {
-	var report string
-	// Try converting to JSON
-	report, err := ToJSON(servers, true)
-	// If cannot convert to JSON
-	if err != nil {
-		// Save all servers as string (this is not as good as JSON)
-		for _, v := range *servers {
-			report += fmt.Sprintf("%+v\n%s\n", v, strings.Repeat("-", 30))
-		}
-		return report
-	}
-	return report
-}
-
-// ToJSON converts input to JSON. If prettyPrint is set to True it will call
-// MarshallIndent with 4 spaces.
-// If your struct does not work here, make sure struct fields start with a
-// capital letter. Otherwise they are not visible to the json package methods.
-// We could also rewrite this as a method for ([]*SSHServer).
-func ToJSON(s interface{}, prettyPrint bool) (string, error) {
-	var js []byte
-	var err error
-
-	// Pretty print if specified
-	if prettyPrint {
-		js, err = json.MarshalIndent(s, "", "    ") // 4 spaces
-	} else {
-		js, err = json.Marshal(s)
-	}
-
-	// Check for marshalling errors
-	if err != nil {
-		return "", nil
-	}
-
-	return string(js), nil
 }
 
 // -----
