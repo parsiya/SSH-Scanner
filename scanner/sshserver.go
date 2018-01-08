@@ -4,6 +4,7 @@ package scanner
 import (
 	"errors"
 	"fmt"
+	"log"
 	"net"
 	"strconv"
 	"strings"
@@ -47,7 +48,22 @@ func NewSSHServer(address string) (*SSHServer, error) {
 	return &s, nil
 }
 
+// -----
+
 type SSHServers []*SSHServer
+
+// Initialize converts the list of addresses to *SSHServer and stores the
+// results in the SSHServers receiver.
+func (s *SSHServers) Initialize(addresses []string, logger *log.Logger) {
+	for _, addr := range addresses {
+		ts, err := NewSSHServer(addr)
+		if err != nil {
+			logger.Printf("could not processs %v\n", err)
+			continue
+		}
+		*s = append(*s, ts)
+	}
+}
 
 // String converts []*SSHServer to JSON. If it cannot convert to JSON, it
 // will convert each member to string using fmt.Sprintf("%+v").

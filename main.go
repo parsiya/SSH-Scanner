@@ -119,13 +119,28 @@ func action(c *cli.Context) error {
 		}
 	}
 
+	// Parse addresses supplied by -t
 	if target != "" {
 		// Split by "," and add to addresses
 		targets := strings.Split(target, ",")
 		addresses = append(addresses, targets...)
 	}
 
-	logSSH.Println(addresses)
+	// logSSH.Println(addresses)
+
+	// Process addresses
+	var servers scanner.SSHServers
+	servers.Initialize(addresses, logSSH)
+
+	// Check if input had any correct addresses
+	if len(servers) == 0 {
+		logSSH.Println("no correct addresses were provided - terminating")
+		return cli.NewExitError("", 2)
+	}
+
+	fmt.Println(len(servers))
+
+	fmt.Println(servers.String())
 
 	return nil
 }
