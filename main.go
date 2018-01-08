@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
+	"strings"
 
 	"github.com/urfave/cli"
 
@@ -19,10 +21,13 @@ var (
 	input string
 	// Output file
 	output string
-	// Name of optional log file
-	logFile string
+	// Name of optional logwriters
+	logwriters string
 	// Verbose flag - print logs to stdout
 	verbose bool
+
+	// Logger
+	logSSH *log.Logger
 )
 
 func init() {
@@ -47,7 +52,7 @@ func init() {
 		cli.StringFlag{
 			Name:        "l, log",
 			Usage:       scanner.LogUsage,
-			Destination: &logFile,
+			Destination: &logwriters,
 		},
 		cli.BoolFlag{
 			Name:        "v, verbose",
@@ -84,14 +89,43 @@ func action(c *cli.Context) error {
 	if err := checkMinimumFlags(c); err != nil {
 		fmt.Print("set either -input or -target\n\n")
 		cli.ShowAppHelp(c)
-		return err
+		return cli.NewExitError(err.Error(), 2)
 	}
+
+	var writers []string
+
+	// Parse logwriters
+	if logwriters != "" {
+		// Split by comma to get all logwriters
+		writers = strings.Split(logwriters, ",")
+	}
+
+	// Setup logging
+	logSSH, err := scanner.SetupLogging(writers...)
+	if err != nil {
+		return cli.NewExitError(err.Error(), 2)
+	}
+
+	// fmt.Printf("%+v", c)
 
 	// Parse target list
-	var servers scanner.SSHServers
-	if target != nil {
+	var addresses []string
 
+	// Read file if input is provided
+	if input != "" {
+		addresses, err = scanner.ReadTargetFile(input)
+		if err != nil {
+			logSSH.Println("error reading from file")
+		}
 	}
+
+	if target != "" {
+		// Split by "," and add to addresses
+		targets := strings.Split(target, ",")
+		addresses = append(addresses, targets...)
+	}
+
+	logSSH.Println(addresses)
 
 	return nil
 }

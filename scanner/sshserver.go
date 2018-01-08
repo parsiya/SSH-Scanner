@@ -16,7 +16,7 @@ type SSHServer struct {
 	Address    string            // host:port
 	Host       string            // IP address
 	Port       int               // port
-	IsSSH      bool              // true if SSH is listening on address:port
+	IsSSH      bool              // true if SSH is listening on host:port
 	Banner     string            // banner text, if any
 	Certs      []ssh.Certificate // server's certificates
 	Hostname   string            // hostname

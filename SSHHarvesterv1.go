@@ -243,54 +243,6 @@ func bannerCallback(s *SSHServer) ssh.BannerCallback {
 // -----
 // Misc functions
 
-// readTargetFile opens a file and attempts to read targets from it.
-// Each target should on its own line and in the correct format.
-func readTargetFile(file string) ([]string, error) {
-
-	var adds []string
-
-	// Open the file and read it
-	f, err := os.Open(in)
-	if err != nil {
-		return nil, err
-	}
-	// Close file
-	defer f.Close()
-
-	// Read line by line and add addresses
-	scanner := bufio.NewScanner(f)
-	for scanner.Scan() {
-		adds = append(adds, scanner.Text())
-	}
-
-	// Catch scanner errors
-	if err := scanner.Err(); err != nil {
-		return nil, err
-	}
-
-	return adds, nil
-}
-
-// writeReport stores results to file. Preferably uses ToJSON. If it cannot,
-// prints them as string with .
-func writeReport(file string, servers SSHServers) error {
-
-	outfile, err := os.Create(file)
-	if err != nil {
-		return err
-	}
-	defer outfile.Close()
-
-	// Try to serialize servers
-	report := servers.String()
-	// Write serialized date to file
-	_, err = outfile.WriteString(report)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 // -----
 func main() {
 
