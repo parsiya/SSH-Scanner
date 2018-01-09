@@ -50,6 +50,7 @@ func NewSSHServer(address string) (*SSHServer, error) {
 
 // -----
 
+// SSHServers is a slice of *SSHServer
 type SSHServers []*SSHServer
 
 // Initialize converts the list of addresses to *SSHServer and stores the
@@ -65,16 +66,23 @@ func (s *SSHServers) Initialize(addresses []string, logger *log.Logger) {
 	}
 }
 
+// Process goes through all servers and populates them.
+func (s *SSHServers) Process(logger *log.Logger) {
+	for _, server := range *s {
+		logger.Printf("%+v", server)
+	}
+}
+
 // String converts []*SSHServer to JSON. If it cannot convert to JSON, it
 // will convert each member to string using fmt.Sprintf("%+v").
-func (servers *SSHServers) String() string {
+func (s *SSHServers) String() string {
 	var report string
 	// Try converting to JSON
-	report, err := ToJSON(servers, true)
+	report, err := ToJSON(s, true)
 	// If cannot convert to JSON
 	if err != nil {
 		// Save all servers as string (this is not as good as JSON)
-		for _, v := range *servers {
+		for _, v := range *s {
 			report += fmt.Sprintf("%+v\n%s\n", v, strings.Repeat("-", 30))
 		}
 		return report

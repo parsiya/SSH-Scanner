@@ -128,9 +128,14 @@ func action(c *cli.Context) error {
 
 	// logSSH.Println(addresses)
 
+	// Remove duplicate addresses
+	uniques := scanner.RemoveDuplicates(addresses)
+
+	// fmt.Println(uniques)
+
 	// Process addresses
 	var servers scanner.SSHServers
-	servers.Initialize(addresses, logSSH)
+	servers.Initialize(uniques, logSSH)
 
 	// Check if input had any correct addresses
 	if len(servers) == 0 {
@@ -138,9 +143,11 @@ func action(c *cli.Context) error {
 		return cli.NewExitError("", 2)
 	}
 
-	fmt.Println(len(servers))
+	// fmt.Println(len(servers))
 
-	fmt.Println(servers.String())
+	// fmt.Println(servers.String())
+
+	servers.Process(logSSH)
 
 	return nil
 }
